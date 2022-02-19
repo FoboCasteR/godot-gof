@@ -53,9 +53,8 @@ current = true
 script = ExtResource( 2 )
 
 [node name="GameOfLife" parent="." instance=ExtResource( 4 )]
-width = 50
-height = 50
-rulestring = "3/S23"
+width = 100
+height = 100
 
 [node name="Timer" type="Timer" parent="."]
 wait_time = 0.5

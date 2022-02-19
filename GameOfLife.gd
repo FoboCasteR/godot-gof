@@ -1,7 +1,7 @@
 extends Node
 
-export(int, 3, 1000) var width : = 10
-export(int, 3, 1000) var height : = 10
+export(int, 3, 100) var width : = 10
+export(int, 3, 100) var height : = 10
 export(String) var rulestring := "B3/S23" setget set_rulestring
 
 signal next_generation(board)
@@ -9,6 +9,39 @@ signal next_generation(board)
 var boards: Array = []
 var birth_number_list: Array = [3]
 var survive_number_list: Array = [2, 3]
+var neighbourhood: MooreNeighbourhood = MooreNeighbourhood.new()
+
+
+class MooreNeighbourhood:
+	const OFFSETS = [
+		Vector2(-1, -1),
+		Vector2(-1, 0),
+		Vector2(-1, 1),
+		Vector2(0, -1),
+		Vector2(0, 1),
+		Vector2(1, -1),
+		Vector2(1, 0),
+		Vector2(1, 1),
+	]
+	
+	func count(board: BitMap, coords: Vector2) -> int:
+		var border := board.get_size()
+		var count := 0
+
+		for offset in OFFSETS:
+			var new_coords = coords + offset
+
+			if new_coords.y < 0 or new_coords.y >= border.y:
+				continue
+
+			if new_coords.x < 0 or new_coords.x >= border.x:
+				continue
+
+			if board.get_bit(new_coords):
+				count += 1
+
+		return count
+
 
 func _ready():
 	create_boards()
@@ -19,15 +52,19 @@ func set_rulestring(value: String) -> void:
 
 	var regex_match = regex.search(value)
 
-	birth_number_list = []
-	survive_number_list = []
-
 	if regex_match:
+		birth_number_list = []
+		survive_number_list = []
+		rulestring = value
+
 		for digit in regex_match.get_string("birth"):
 			birth_number_list.append(int(digit))
 
 		for digit in regex_match.get_string("survive"):
 			survive_number_list.append(int(digit))
+
+	else:
+		printerr('Invalid rulestring')
 
 func create_boards() -> void:
 	for i in 2:
@@ -35,38 +72,18 @@ func create_boards() -> void:
 		bitmap.create(Vector2(width, height))
 		boards.append(bitmap)
 
-func count_neighbours(row: int, col: int) -> int:
-	var count := 0
-
-	for row_offset in [-1, 0, 1]:
-		for col_offset in [-1, 0, 1]:
-			if row_offset == 0 and col_offset == 0:
-				continue
-
-			var new_row := row + row_offset as int
-			if new_row < 0 or new_row >= height:
-				continue
-
-			var new_col := col + col_offset as int
-			if new_col < 0 or new_col >= width:
-				continue
-
-			if boards[0].get_bit(Vector2(new_col, new_row)):
-				count += 1
-
-	return count
-
 func next_generation():
 	for row in height:
 		for col in width:
-			boards[1].set_bit(Vector2(col, row), next_cell_state(row, col))
+			var coords = Vector2(col, row)
+			boards[1].set_bit(coords, next_cell_state(coords))
 	boards.invert()
 	emit_signal("next_generation", boards[0])
 
-func next_cell_state(row: int, col: int) -> bool:
-	var neighbor_count := count_neighbours(row, col)
+func next_cell_state(coords: Vector2) -> bool:
+	var neighbor_count := neighbourhood.count(boards[0], coords)
 
-	if boards[0].get_bit(Vector2(col, row)):
+	if boards[0].get_bit(coords):
 		return survive_number_list.has(neighbor_count)
 	else:
 		return birth_number_list.has(neighbor_count)
