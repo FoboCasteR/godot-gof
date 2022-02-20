@@ -28,9 +28,13 @@ func _process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	var motion_event := event as InputEventMouseMotion
+	var gesture_event := event as InputEventPanGesture
 
 	if motion_event and motion_event.button_mask == BUTTON_MASK_MIDDLE:
 		position -= motion_event.relative
+
+	if gesture_event:
+		position += gesture_event.delta * 10
 
 	if event.is_action_pressed("ui_select"):
 		reset_position()
