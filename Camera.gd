@@ -3,9 +3,9 @@ extends Camera2D
 
 const ZOOM = [1, 2, 4]
 
-export var SPEED : = 500
-var default_position : = Vector2.ZERO
-var zoom_level : = 0
+export var SPEED := 500
+var default_position := Vector2.ZERO
+var zoom_level := 0
 
 
 func _process(delta: float) -> void:
@@ -45,7 +45,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("zoom_in"):
 		zoom_level -= 1
 
-	zoom_level = clamp(zoom_level, 0, len(ZOOM) - 1)
+	zoom_level = clamp(zoom_level, 0, len(ZOOM) - 1) as int
 	zoom = Vector2(ZOOM[zoom_level], ZOOM[zoom_level])
 
 
