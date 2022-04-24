@@ -3,13 +3,12 @@ extends Node
 
 export(int, 3, 100) var width := 10
 export(int, 3, 100) var height := 10
-export(String) var rulestring := "B3/S23" setget set_rulestring
+export(int, FLAGS, '0', '1', '2', '3', '4', '5', '6', '7', '8') var birth_rule = 0b0_0000_1000
+export(int, FLAGS, '0', '1', '2', '3', '4', '5', '6', '7', '8') var survive_rule = 0b0_0000_1100
 
 signal next_generation(board)
 
 var boards := []
-var birth_number_list := 0b0_0000_1000
-var survive_number_list := 0b0_0000_1100
 var neighbourhood: MooreNeighbourhood = MooreNeighbourhood.new()
 
 
@@ -47,26 +46,6 @@ func _ready():
 	create_boards()
 
 
-func set_rulestring(value: String) -> void:
-	var regex = RegEx.new()
-	regex.compile("B(?<birth>.*)\/S(?<survive>.*)")
-
-	var regex_match = regex.search(value)
-
-	if regex_match:
-		birth_number_list = 0
-		survive_number_list = 0
-		rulestring = value
-
-		for digit in regex_match.get_string("birth"):
-			birth_number_list |= 1 << int(digit)
-
-		for digit in regex_match.get_string("survive"):
-			survive_number_list |= 1 << int(digit)
-	else:
-		printerr('Invalid rulestring')
-
-
 func create_boards() -> void:
 	for i in 2:
 		var board := []
@@ -91,9 +70,9 @@ func next_generation():
 			var neighbor_count := neighbourhood.count(front_board, Vector2(x, y), borders)
 
 			if row[x]:
-				back_board[y][x] = survive_number_list & 1 << neighbor_count
+				back_board[y][x] = survive_rule & 1 << neighbor_count
 			else:
-				back_board[y][x] = birth_number_list & 1 << neighbor_count
+				back_board[y][x] = birth_rule & 1 << neighbor_count
 
 	boards.invert()
 
