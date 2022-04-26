@@ -57,7 +57,6 @@ width = 100
 height = 100
 
 [node name="Timer" type="Timer" parent="."]
-wait_time = 0.5
+autostart = true
 
-[connection signal="next_generation" from="GameOfLife" to="Board" method="draw_board"]
-[connection signal="timeout" from="Timer" to="GameOfLife" method="next_generation"]
+[connection signal="timeout" from="Timer" to="." method="_on_Timer_timeout"]

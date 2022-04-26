@@ -3,10 +3,8 @@ extends Node
 
 export(int, 3, 100) var width := 10
 export(int, 3, 100) var height := 10
-export(int, FLAGS, '0', '1', '2', '3', '4', '5', '6', '7', '8') var birth_rule = 0b0_0000_1000
-export(int, FLAGS, '0', '1', '2', '3', '4', '5', '6', '7', '8') var survive_rule = 0b0_0000_1100
-
-signal next_generation(board)
+export(int, FLAGS, '0', '1', '2', '3', '4', '5', '6', '7', '8') var birth_rule = 0b1000
+export(int, FLAGS, '0', '1', '2', '3', '4', '5', '6', '7', '8') var survive_rule = 0b1100
 
 var boards := []
 var neighbourhood: MooreNeighbourhood = MooreNeighbourhood.new()
@@ -23,6 +21,7 @@ class MooreNeighbourhood:
 		Vector2(1, 0),
 		Vector2(1, 1),
 	]
+
 
 	func count(board: Array, coords: Vector2, borders: Vector2) -> int:
 		var count := 0
@@ -75,8 +74,6 @@ func next_generation():
 				back_board[y][x] = birth_rule & 1 << neighbor_count
 
 	boards.invert()
-
-	emit_signal("next_generation", front_board)
 
 
 func generate_soup():
