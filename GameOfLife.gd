@@ -45,6 +45,10 @@ func _ready():
 	create_boards()
 
 
+func get_size() -> Vector2:
+	return Vector2(width, height)
+
+
 func create_boards() -> void:
 	for i in 2:
 		var board := []

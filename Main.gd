@@ -1,18 +1,22 @@
-extends Node2D
+extends Node
 
 
 var thread: Thread
 var semaphore: Semaphore
 var exit_thread := false
 
+onready var Board = $Board
+onready var Game = $GameOfLife
+onready var MainCamera = $Camera
+
 
 func _ready() -> void:
 	randomize()
 
-	$GameOfLife.generate_soup()
-	$Board.draw_board($GameOfLife.boards[0])
-	$Camera.default_position = $Board.get_used_rect().size * $Board.cell_size / 2
-	$Camera.reset_position()
+	Game.generate_soup()
+	Board.draw_board(Game.boards[0])
+	MainCamera.default_position = Board.map_to_world(Game.get_size() / 2)
+	MainCamera.reset_position()
 
 	thread = Thread.new()
 	semaphore = Semaphore.new()
@@ -29,10 +33,11 @@ func _exit_tree():
 func _on_Timer_timeout():
 	# warning-ignore:return_value_discarded
 	semaphore.post()
-	$Board.draw_board($GameOfLife.boards[0])
+	Board.draw_board(Game.boards[0])
+
 
 func tick(_userdata):
 	while !exit_thread:
 		# warning-ignore:return_value_discarded
 		semaphore.wait()
-		$GameOfLife.next_generation()
+		Game.next_generation()
